@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 import models, schemas
 
 #get для всего
@@ -20,11 +20,11 @@ async def post_item(db, item: schemas.ItemCreate):
     return db_item
 
 #patch item
-async def update_item(db, item_id: int, item_data: schemas.ItemUpdate):
+async def update_item(db, item_id: int, item_data: schemas.CRUDItemUpdate):
     # Обновляем только переданные поля
     update_data = item_data.model_dump(exclude_unset=True)
     stmt = (
-        update(models.Item)
+        db.update(models.Item)
         .where(models.Item.id == item_id)
         .values(**update_data)
     )
@@ -33,7 +33,7 @@ async def update_item(db, item_id: int, item_data: schemas.ItemUpdate):
 
 #delete item 
 async def delete_item(db, item_id: int):
-    stmt = delete(models.Item).where(models.Item.id == item_id)
+    stmt = db.delete(models.Item).where(models.Item.id == item_id)
     await db.execute(stmt)
     await db.commit()
 

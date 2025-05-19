@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import uvicorn
 from dotenv import load_dotenv
-import os
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
@@ -85,7 +84,7 @@ async def update_item(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Item not found"
         )
-    
+    CRUDItem_data = schemas.CRUDItemUpdate(name=item_data.name)
     await crud_Item.update_item(db, item_id, item_data)
     return await crud_Item.get_item(db, item_id)  # Возвращаем обновленные данные
 
@@ -94,14 +93,14 @@ async def delete_item(
     item_id: int,
     db: AsyncSession = Depends(database.get_db)
 ):
-    db_item = await crud.get_item(db, item_id)
+    db_item = await crud_Item.get_item(db, item_id)
     if not db_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Item not found"
         )
-    
-    await crud.delete_item(db, item_id)
+    CRUDItem_data = schemas.CRUDItemUpdate(deleted_at='now')    
+    await crud_Item.update_item(db, item_id)
     return None  # 204 No Content
 
 
@@ -135,8 +134,8 @@ async def update_ToDoList(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="ToDoList not found"
         )
-    
-    await crud_ToDoList.update_ToDoList(db, ToDoList_id, ToDoList_data)
+    CRUDToDoList_data = schemas.CRUDToDoListUpdate(name=ToDoList_data.name)
+    await crud_ToDoList.update_ToDoList(db, ToDoList_id, CRUDToDoList_data)
     return await crud_ToDoList.get_ToDoList(db, ToDoList_id)  # Возвращаем обновленные данные
 
 @app.delete("/ToDoLists/{ToDoList_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -144,12 +143,20 @@ async def delete_ToDoList(
     ToDoList_id: int,
     db: AsyncSession = Depends(database.get_db)
 ):
-    db_ToDoList = await crud.get_ToDoList(db, ToDoList_id)
+    db_ToDoList = await crud_ToDoList.get_ToDoList(db, ToDoList_id)
     if not db_ToDoList:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="ToDoList not found"
         )
-    
-    await crud.delete_ToDoList(db, ToDoList_id)
+    CRUDToDoList_data = schemas.CRUDToDoListUpdate(deleted_at='now')
+    await crud_ToDoList.update_ToDoList(db, ToDoList_id, CRUDToDoList_data)
     return None  # 204 No Content
+
+
+#поле progress
+# @app.get("/progress/{ToDoList_id}")
+# async def progress(ToDoList_id: int, db: AsyncSession = Depends(database.get_db)):
+
+#     return {"progress": "Hello world"}
+

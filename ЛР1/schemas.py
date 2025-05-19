@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
+
 # Схема для обновления (PATCH)item - все поля необязательные
 class ItemUpdate(BaseModel):
     name: Optional[str] = None
@@ -17,6 +18,9 @@ class Item(ItemCreate):
     class Config:
         from_attributes = True
 
+class CRUDItemUpdate(ItemUpdate):
+    deleted_at: Optional[str] = None
+
 
 # Схема для обновления (PATCH)ToDoList - все поля необязательные
 class ToDoListUpdate(BaseModel):
@@ -30,3 +34,6 @@ class ToDoList(ToDoListCreate):
 
     class Config:
         from_attributes = True
+
+class CRUDToDoListUpdate(ToDoListUpdate):
+    deleted_at: Optional[str] = None

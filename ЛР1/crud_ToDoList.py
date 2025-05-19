@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select,update
 import models, schemas
 
 #get для всего
@@ -20,19 +20,19 @@ async def post_ToDoList(db, ToDoList: schemas.ToDoListCreate):
     return db_ToDoList
 
 #patch ToDoList
-async def update_ToDoList(db, ToDoList_id: int, ToDoList: schemas.ToDoListUpdate):
+async def update_ToDoList(db, ToDoList_id: int, ToDoList: schemas.CRUDToDoListUpdate):
     # Обновляем только переданные поля
-    update_data = user_data.model_dump(exclude_unset=True)
+    update_data = ToDoList.model_dump(exclude_unset=True)
     stmt = (
-        update(models.User)
-        .where(models.User.id == user_id)
-        .values(**update_data)
+        update(models.ToDoList)
+        .where(models.ToDoList.id == ToDoList_id)
+        .values(**update_data) 
     )
     await db.execute(stmt)
     await db.commit()
 
 #delete ToDoList 
 async def delete_ToDoList(db, ToDoList_id: int):
-    stmt = delete(models.ToDoList).where(models.ToDoList.id == ToDoList_id)
+    stmt = db.delete(models.ToDoList).where(models.ToDoList.id == ToDoList_id)
     await db.execute(stmt)
     await db.commit()
